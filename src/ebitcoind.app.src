@@ -1,0 +1,25 @@
+{application, ebitcoind,
+ [
+  {description, "An Erlang ebitcoind library"},
+  {vsn, git},
+  {modules, [
+             ebitcoind
+            ]},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  sasl,
+                  inets,
+                  crypto,
+                  asn1,
+                  public_key,
+                  ssl,
+                  syntax_tools,
+                  compiler,
+                  goldrush,
+                  jsonrpc2,
+                  lager
+                 ]},
+  {env, []}
+ ]}.
