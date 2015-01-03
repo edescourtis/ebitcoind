@@ -1,18 +1,132 @@
 %%%-------------------------------------------------------------------
 %%% @author Eric des Courtis
+%%% @author Patrick Begley
 %%% @copyright (C) 2015, Eric des Courtis
 %%% @doc
 %%%
 %%% @end
 %%% Created : 01. Jan 2015 6:22 PM
+%%% Based off API documentation @
+%%%  https://en.bitcoin.it/wiki/Original_Bitcoin_client/API_calls_list
+%%%
+%%%
 %%%-------------------------------------------------------------------
 -module(ebitcoind).
 -author("Eric des Courtis").
+-author("Patrick Begley").
 
 -behaviour(gen_server).
 
 %% API
--export([start_link/0, start_link/1, getinfo/1]).
+-export([start_link/0,
+         start_link/1,
+         addmultisigaddress/3,
+         addmultisigaddress/4,
+         addnode/3,
+         backupwallet/2,
+         createmultisig/3,
+         createrawtransaction/3,
+         decoderawtransaction/2,
+         dumpprivkey/2,
+         encryptwallet/2,
+         getaccount/2,
+         getaccountaddress/2,
+         getaddednodeinfo/2,
+         getaddednodeinfo/3,
+         getaddressesbyaccount/2,
+         getbalance/1,
+         getbalance/2,
+         getbalance/3,
+         getbestblockhash/1,
+         getblock/2,
+         getblockcount/1,
+         getblockhash/2,
+         %getblocknumber/1,
+         getblocktemplate/1,
+         getblocktemplate/2,
+         getconnectioncount/1,
+         getdifficulty/1,
+         getgenerate/1,
+         gethashespersec/1,
+         getinfo/1,
+         %getmemorypool/2,
+         getmininginfo/1,
+         getnewaddress/1,
+         getnewaddress/2,
+         getpeerinfo/1,
+         getrawchangeaddress/1,
+         getrawchangeaddress/2,
+         getrawmempool/1,
+         getrawtransaction/2,
+         getrawtransaction/3,
+         getreceivedbyaccount/1,
+         getreceivedbyaccount/2,
+         getreceivedbyaccount/3,
+         getreceivedbyaddress/2,
+         getreceivedbyaddress/3,
+         gettransaction/2,
+         gettxout/3,
+         gettxout/4,
+         gettxoutsetinfo/1,
+         getwork/1,
+         getwork/2,
+         help/1,
+         help/2,
+         importprivkey/2,
+         importprivkey/3,
+         importprivkey/4,
+         keypoolrefill/1,
+         listaccounts/1,
+         listaccounts/2,
+         listaddressgroupings/1,
+         listreceivedbyaccount/1,
+         listreceivedbyaccount/2,
+         listreceivedbyaccount/3,
+         listreceivedbyaddress/1,
+         listreceivedbyaddress/2,
+         listreceivedbyaddress/3,
+         listsinceblock/1,
+         listsinceblock/2,
+         listsinceblock/3,
+         listtransactions/1,
+         listtransactions/2,
+         listtransactions/3,
+         listtransactions/4,
+         listunspent/1,
+         listunspent/2,
+         listunspent/3,
+         listlockunspent/1,
+         lockunspent/2,
+         lockunspent/3,
+         move/4,
+         move/5,
+         move/6,
+         sendfrom/4,
+         sendfrom/5,
+         sendfrom/6,
+         sendfrom/7,
+         sendmany/3,
+         sendmany/4,
+         sendmany/5,
+         sendrawtransaction/2,
+         sendtoaddress/3,
+         sendtoaddress/4,
+         sendtoaddress/5,
+         setaccount/3,
+         setgenerate/2,
+         setgenerate/3,
+         settxfee/2,
+         signmessage/3,
+         signrawtransaction/4,
+         stop/1,
+         submitblock/2,
+         submitblock/3,
+         validateaddress/2,
+         verifymessage/4,
+         walletlock/1,
+         walletpassphrase/3,
+         walletpassphrasechange/3
+        ]).
 
 %% gen_server callbacks
 -export([init/1,
@@ -74,8 +188,673 @@ start_link(Url) when is_binary(Url) ->
     gen_server:start_link(?MODULE, [Config], []).
 
 
-getinfo(Pid) ->
+-spec( addmultisigaddress(pid(), pos_integer(), [binary()] ) -> binary() ).
+addmultisigaddress( Pid, NRequired, Keys )
+    when is_pid(Pid), is_integer(NRequired), is_list(Keys), NRequired > 0 ->
+    gen_server:call(Pid, {addmultisigaddress, [NRequired,Keys]}, ?TIMEOUT).
+-spec( addmultisigaddress(pid(), pos_integer(), [binary()], binary() ) -> binary() ).
+addmultisigaddress( Pid, NRequired, Keys, Account )
+    when is_pid(Pid), is_integer(NRequired), is_list(Keys), NRequired > 0, is_binary(Account) ->
+    gen_server:call(Pid, {addmultisigaddress, [NRequired,Keys,Account]}, ?TIMEOUT).
+
+-spec( addnode(pid(), binary(), add|remove|onetry) -> term() ).
+addnode( Pid, Node, Action )
+    when is_pid(Pid),
+         is_binary(Node),
+         ( Action =:= add ) or (Action =:= remove) or (Action =:= onetry ) ->
+    gen_server:call( Pid, {addnode, [Node, erlang:atom_to_binary(Action,utf8)]}, ?TIMEOUT).
+
+-spec( backupwallet(pid(), binary() ) -> term() ).
+backupwallet( Pid, Destination )
+    when is_pid(Pid),
+         is_binary(Destination) ->
+    gen_server:call(Pid, {backupwallet, [Destination]}, ?TIMEOUT).
+
+-spec( createmultisig(pid(), pos_integer(), [binary()]) -> map() ).
+createmultisig( Pid, NRequired, Keys )
+    when is_pid(Pid),
+         is_integer(NRequired),
+         is_list(Keys),
+         NRequired > 0 ->
+    gen_server:call(Pid, {createmultisig, [NRequired, Keys]}, ?TIMEOUT).
+
+-spec( createrawtransaction(pid(), [map()], map()) -> term() ).
+createrawtransaction( Pid, Inputs, Outputs )
+    when is_pid(Pid),
+         is_list(Inputs),
+         is_map(Outputs) ->
+    gen_server:call(Pid, {createrawtransaction, [Inputs, Outputs]}, ?TIMEOUT).
+
+-spec( decoderawtransaction(pid(), binary() ) -> map() ).
+decoderawtransaction( Pid, HexString )
+    when is_pid(Pid),
+         is_binary(HexString) ->
+    gen_server:call(Pid, {decoderawtransaction, [HexString]}, ?TIMEOUT).
+
+-spec( dumpprivkey(pid(), binary()) -> binary() ).
+dumpprivkey( Pid, WalletAddress )
+    when is_pid(Pid),
+         is_binary(WalletAddress) ->
+    gen_server:call(Pid, {dumpprivkey, [WalletAddress]}, ?TIMEOUT).
+
+-spec( encryptwallet(pid(), binary() ) -> binary() ).
+encryptwallet( Pid, PassPhrase )
+    when is_pid(Pid),
+         is_binary(PassPhrase) ->
+    gen_server:call(Pid, {encryptwallet, [PassPhrase]}, ?TIMEOUT).
+
+-spec( getaccount(pid(), binary() ) -> term() ).
+getaccount( Pid, WalletAddress )
+    when is_pid(Pid),
+         is_binary(WalletAddress) ->
+    gen_server:call(Pid, {getaccount, [WalletAddress]}, ?TIMEOUT).
+
+-spec( getaccountaddress(pid(), binary()) -> binary() ).
+getaccountaddress(Pid, Account)
+    when is_pid(Pid),
+         is_binary(Account) ->
+    gen_server:call(Pid, {getaccountaddress, [Account]}, ?TIMEOUT).
+
+
+-spec( getaddednodeinfo(pid(), binary()) -> term() ).
+getaddednodeinfo(Pid, DNS )
+    when is_pid(Pid),
+    is_binary(DNS) ->
+    gen_server:call(Pid, {getaddednodeinfo, [DNS]}, ?TIMEOUT).
+-spec( getaddednodeinfo(pid(), binary(), binary()) -> term() ).
+getaddednodeinfo(Pid, DNS, Node )
+    when is_pid(Pid),
+    is_binary(DNS),
+    is_binary(Node) ->
+    gen_server:call(Pid, {getaddednodeinfo, [DNS, Node]}, ?TIMEOUT).
+
+
+-spec( getaddressesbyaccount(pid(), binary()) -> [binary()]).
+getaddressesbyaccount(Pid, Account)
+    when is_pid(Pid),
+         is_binary(Account) ->
+    gen_server:call(Pid, {getaddressesbyaccount, [Account]}, ?TIMEOUT).
+
+
+-spec( getbalance(pid() ) -> float()).
+getbalance(Pid) when is_pid(Pid) ->
+    gen_server:call( Pid, getbalance, ?TIMEOUT).
+-spec( getbalance(pid(), binary() ) -> float()).
+getbalance(Pid, Account ) when is_pid(Pid), is_binary(Account) ->
+    gen_server:call( Pid, {getbalance, [Account]}, ?TIMEOUT).
+-spec( getbalance(pid(), binary(), integer() ) -> float()).
+getbalance(Pid, Account, MinConf)
+    when is_pid(Pid), is_binary(Account), is_integer(MinConf) ->
+    gen_server:call( Pid, {getbalance, [Account, MinConf]}, ?TIMEOUT).
+
+
+-spec( getbestblockhash(pid()) -> binary()).
+getbestblockhash(Pid) when is_pid(Pid) ->
+    gen_server:call(Pid, getbestblockhash, ?TIMEOUT).
+
+-spec( getblock(pid(), binary()) -> term()).
+getblock( Pid, Hash )
+    when is_pid(Pid),
+         is_binary(Hash) ->
+    gen_server:call(Pid, {getblock, [Hash]}, ?TIMEOUT).
+
+-spec( getblockcount(pid()) -> non_neg_integer()).
+getblockcount(Pid) when is_pid(Pid) ->
+    gen_server:call(Pid, getblockcount, ?TIMEOUT).
+
+
+-spec( getblockhash(pid(), non_neg_integer()) -> binary()).
+getblockhash(Pid, Index)
+    when is_pid(Pid),
+         is_integer(Index),
+         Index >= 0 ->
+    gen_server:call(Pid, {getblockhash, [Index]}, ?TIMEOUT).
+
+%% Deprecated in 0.7
+%-spec( getblocknumber(pid()) -> non_neg_integer() ).
+%getblocknumber( Pid) when is_pid(Pid) ->
+%    gen_server:call(Pid, getblocknumber, ?TIMEOUT).
+%%
+
+-spec( getblocktemplate(pid()) -> term()).
+getblocktemplate(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, getblocktemplate, ?TIMEOUT).
+-spec( getblocktemplate(pid(), term()) -> term()).
+getblocktemplate(Pid, Params)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, {getblocktemplate, [Params]}, ?TIMEOUT).
+
+
+-spec( getconnectioncount(pid()) -> non_neg_integer() ).
+getconnectioncount(Pid) when is_pid(Pid) ->
+    gen_server:call(Pid, getconnectioncount, ?TIMEOUT).
+
+-spec( getdifficulty(pid()) -> float() ).
+getdifficulty(Pid) when is_pid( Pid) ->
+    gen_server:call(Pid, getdifficulty, ?TIMEOUT).
+
+-spec( getgenerate(pid()) -> boolean() ).
+getgenerate(Pid) when is_pid(Pid) ->
+    gen_server:call(Pid, getgenerate, ?TIMEOUT).
+
+-spec( gethashespersec(pid()) -> non_neg_integer() ).
+gethashespersec(Pid) when is_pid(Pid) ->
+    gen_server:call(Pid, gethashespersec, ?TIMEOUT).
+
+-spec( getinfo(pid())-> map() ).
+getinfo(Pid) when is_pid(Pid) ->
     gen_server:call(Pid, getinfo, ?TIMEOUT).
+
+
+%% Replaced in v0.7.0 with getblocktemplate, submitblock, getrawmempool
+%-spec( getmemorypool(pid(), term()) -> term()).
+%getmemorypool(Pid, Data)
+%    when is_pid(Pid) ->
+%    gen_server:call(Pid, {getmemorypool, [Data]}, ?TIMEOUT).
+%%
+
+-spec( getmininginfo(pid()) -> map() ).
+getmininginfo(Pid) when is_pid(Pid) ->
+    gen_server:call(Pid, getmininginfo, ?TIMEOUT).
+
+-spec( getnewaddress(pid()) -> binary() ).
+getnewaddress(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, getnewaddress, ?TIMEOUT).
+-spec( getnewaddress(pid(), binary()) -> binary() ).
+getnewaddress(Pid, Account)
+    when is_pid(Pid),
+         is_binary(Account) ->
+    gen_server:call(Pid, {getnewaddress, [Account]}, ?TIMEOUT).
+
+-spec( getpeerinfo(pid()) -> [map()] ).
+getpeerinfo(Pid) when is_pid(Pid) ->
+    gen_server:call(Pid, getpeerinfo, ?TIMEOUT).
+
+-spec( getrawchangeaddress(pid()) -> binary()).
+getrawchangeaddress(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, getrawchangeaddress, ?TIMEOUT).
+-spec( getrawchangeaddress(pid(), binary()) -> binary()).
+getrawchangeaddress(Pid, Account)
+    when is_pid(Pid),
+         is_binary(Account) ->
+    gen_server:call(Pid, {getrawchangeaddress, [Account]}, ?TIMEOUT).
+
+-spec( getrawmempool(pid()) -> list() ).
+getrawmempool(Pid) when is_pid(Pid) ->
+    gen_server:call(Pid, getrawmempool, ?TIMEOUT).
+
+-spec( getrawtransaction(pid(), binary()) -> term() ).
+getrawtransaction(Pid, Txid)
+    when is_pid(Pid),
+    is_binary(Txid) ->
+    gen_server:call(Pid, {getrawtransaction, [Txid]}, ?TIMEOUT).
+-spec( getrawtransaction(pid(), binary(), non_neg_integer()) -> term() ).
+getrawtransaction(Pid, Txid, Verbose)
+    when is_pid(Pid),
+    is_binary(Txid),
+    is_integer(Verbose),
+    Verbose >= 0 ->
+    gen_server:call(Pid, {getrawtransaction, [Txid, Verbose]}, ?TIMEOUT).
+
+-spec( getreceivedbyaccount(pid()) -> float() ).
+getreceivedbyaccount(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, getreceivedbyaccount, ?TIMEOUT).
+-spec( getreceivedbyaccount(pid(), binary()) -> float() ).
+getreceivedbyaccount(Pid, Account)
+    when is_pid(Pid),
+         is_binary(Account) ->
+    gen_server:call(Pid, {getreceivedbyaccount, [Account]}, ?TIMEOUT).
+-spec( getreceivedbyaccount(pid(), binary(), non_neg_integer()) -> float() ).
+getreceivedbyaccount(Pid, Account, MinConfs)
+    when is_pid(Pid),
+         is_binary(Account),
+         is_integer(MinConfs),
+         MinConfs >= 0 ->
+    gen_server:call(Pid, {getreceivedbyaccount, [Account,MinConfs]}, ?TIMEOUT).
+
+-spec( getreceivedbyaddress(pid(), binary()) -> float() ).
+getreceivedbyaddress(Pid, WalletAddress)
+    when is_pid(Pid),
+         is_binary(WalletAddress) ->
+    gen_server:call(Pid, {getreceivedbyaddress, [WalletAddress]}, ?TIMEOUT).
+-spec( getreceivedbyaddress(pid(), binary(), non_neg_integer()) -> float() ).
+getreceivedbyaddress(Pid, WalletAddress, MinConfs)
+    when is_pid(Pid),
+         is_binary(WalletAddress),
+         is_integer(MinConfs),
+         MinConfs >= 0 ->
+    gen_server:call(Pid, {getreceivedbyaddress, [WalletAddress, MinConfs]}, ?TIMEOUT).
+
+-spec( gettransaction(pid(), binary()) -> map() ).
+gettransaction(Pid, Txid)
+    when is_pid(Pid),
+         is_binary(Txid) ->
+    gen_server:call(Pid, {gettransaction, [Txid]}, ?TIMEOUT).
+
+-spec( gettxout(pid(), binary(), integer()) -> term() ).
+gettxout(Pid, Txid, N)
+    when is_pid(Pid),
+    is_binary(Txid) ->
+    gen_server:call(Pid, {gettxout, [Txid, N]}, ?TIMEOUT).
+-spec( gettxout(pid(), binary(), integer(), boolean()) -> term() ).
+gettxout(Pid, Txid, N, IncludeMemPool)
+    when is_pid(Pid),
+    is_binary(Txid),
+    is_boolean(IncludeMemPool)->
+    gen_server:call(Pid, {gettxout, [Txid, N, IncludeMemPool]}, ?TIMEOUT).
+
+-spec( gettxoutsetinfo(pid()) -> map() ).
+gettxoutsetinfo(Pid) when is_pid(Pid) ->
+    gen_server:call(Pid, gettxoutsetinfo, ?TIMEOUT).
+
+-spec( getwork(pid()) -> map() | boolean() ).
+getwork(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, getwork, ?TIMEOUT).
+-spec( getwork(pid(), term()) -> map() | boolean() ).
+getwork(Pid, Data)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, {getwork, [Data]}, ?TIMEOUT).
+
+-spec( help(pid()) -> binary()).
+help(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, help, ?TIMEOUT).
+-spec( help(pid(), binary()) -> binary()).
+help(Pid, Command)
+    when is_pid(Pid),
+         is_binary(Command) ->
+    gen_server:call(Pid, {help, [Command]}, ?TIMEOUT).
+
+-spec( importprivkey(pid(), binary()) -> term()).
+importprivkey(Pid, PrivateKey)
+    when is_pid(Pid),
+         is_binary(PrivateKey) ->
+    gen_server:call(Pid, {importprivkey, [PrivateKey]}, ?TIMEOUT).
+-spec( importprivkey(pid(), binary(), binary()) -> term()).
+importprivkey(Pid, PrivateKey, Label)
+    when is_pid(Pid),
+         is_binary(PrivateKey),
+         is_binary(Label) ->
+    gen_server:call(Pid, {importprivkey, [PrivateKey, Label]}, ?TIMEOUT).
+-spec( importprivkey(pid(), binary(), binary(), boolean()) -> term()).
+importprivkey(Pid, PrivateKey, Label, Rescan)
+    when is_pid(Pid),
+         is_binary(PrivateKey),
+         is_binary(Label),
+         is_boolean(Rescan) ->
+    gen_server:call(Pid, {importprivkey, [PrivateKey, Label, Rescan]}, ?TIMEOUT).
+
+
+-spec( keypoolrefill(pid()) -> null | term() ).
+keypoolrefill(Pid) when is_pid(Pid) ->
+    gen_server:call(Pid, keypoolrefill, ?TIMEOUT).
+
+-spec( listaccounts(pid()) -> map() ).
+listaccounts(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, listaccounts, ?TIMEOUT).
+-spec( listaccounts(pid(), non_neg_integer()) -> map() ).
+listaccounts(Pid, MinConfs)
+    when is_pid(Pid),
+         is_integer(MinConfs),
+         MinConfs >= 0 ->
+    gen_server:call(Pid, {listaccounts, [MinConfs]}, ?TIMEOUT).
+
+-spec( listaddressgroupings(pid()) -> list() ).
+listaddressgroupings(Pid) when is_pid(Pid) ->
+    gen_server:call(Pid, listaddressgroupings, ?TIMEOUT).
+
+-spec( listreceivedbyaccount(pid()) -> [map()] ).
+listreceivedbyaccount(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, listreceivedbyaccount, ?TIMEOUT).
+-spec( listreceivedbyaccount(pid(), non_neg_integer()) -> [map()] ).
+listreceivedbyaccount(Pid, MinConfs)
+    when is_pid(Pid),
+    is_integer(MinConfs),
+    MinConfs >= 0 ->
+    gen_server:call(Pid, {listreceivedbyaccount, [MinConfs]}, ?TIMEOUT).
+-spec( listreceivedbyaccount(pid(), non_neg_integer(), boolean()) -> [map()] ).
+listreceivedbyaccount(Pid, MinConfs, IncludeEmpty)
+    when is_pid(Pid),
+    is_integer(MinConfs),
+    MinConfs >= 0,
+    is_boolean(IncludeEmpty) ->
+    gen_server:call(Pid, {listreceivedbyaccount, [MinConfs, IncludeEmpty]}, ?TIMEOUT).
+
+
+
+-spec( listreceivedbyaddress(pid()) -> [map()] ).
+listreceivedbyaddress(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, listreceivedbyaddress, ?TIMEOUT).
+-spec( listreceivedbyaddress(pid(), non_neg_integer()) -> [map()] ).
+listreceivedbyaddress(Pid, MinConfs)
+    when is_pid(Pid),
+         is_integer(MinConfs),
+         MinConfs >= 0 ->
+    gen_server:call(Pid, {listreceivedbyaddress, [MinConfs]}, ?TIMEOUT).
+-spec( listreceivedbyaddress(pid(), non_neg_integer(), boolean()) -> [map()] ).
+listreceivedbyaddress(Pid, MinConfs, IncludeEmpty)
+    when is_pid(Pid),
+         is_integer(MinConfs),
+         MinConfs >= 0,
+         is_boolean(IncludeEmpty) ->
+    gen_server:call(Pid, {listreceivedbyaddress, [MinConfs, IncludeEmpty]}, ?TIMEOUT).
+
+-spec( listsinceblock(pid()) ->term()).
+listsinceblock(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, listsinceblock, ?TIMEOUT).
+-spec( listsinceblock(pid(), binary()) ->term()).
+listsinceblock(Pid, BlockHash)
+    when is_pid(Pid),
+         is_binary(BlockHash)->
+    gen_server:call(Pid, {listsinceblock, [BlockHash]}, ?TIMEOUT).
+-spec( listsinceblock(pid(), binary(), non_neg_integer()) ->term()).
+listsinceblock(Pid, BlockHash, TargetConfs)
+    when is_pid(Pid),
+         is_binary(BlockHash),
+         is_integer(TargetConfs),
+         TargetConfs >= 0 ->
+    gen_server:call(Pid, {listsinceblock, [BlockHash,TargetConfs]}, ?TIMEOUT).
+
+-spec( listtransactions(pid()) -> list()).
+listtransactions(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, listtransactions, ?TIMEOUT).
+-spec( listtransactions(pid(), binary()) -> list()).
+listtransactions(Pid, Account)
+    when is_pid(Pid),
+         is_binary(Account) ->
+    gen_server:call(Pid, {listtransactions, [Account]}, ?TIMEOUT).
+-spec( listtransactions(pid(), binary(), integer()) -> list()).
+listtransactions(Pid, Account, Count)
+    when is_pid(Pid),
+         is_binary(Account),
+         is_integer(Count),
+         Count > 0 ->
+    gen_server:call(Pid, {listtransactions, [Account, Count]}, ?TIMEOUT).
+-spec( listtransactions(pid(), binary(), integer(), non_neg_integer()) -> list()).
+listtransactions(Pid, Account, Count, From)
+    when is_pid(Pid),
+         is_binary(Account),
+         is_integer(Count),
+         Count > 0,
+         is_integer(From),
+         From >= 0 ->
+    gen_server:call(Pid, {listtransactions, [Account, Count, From]}, ?TIMEOUT).
+
+-spec( listunspent(pid()) -> list() ).
+listunspent(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, listunspent, ?TIMEOUT).
+-spec( listunspent(pid(), non_neg_integer()) -> list() ).
+listunspent(Pid, MinConfs)
+    when is_pid(Pid),
+         is_integer(MinConfs),
+         MinConfs >= 0 ->
+    gen_server:call(Pid, {listunspent, [MinConfs]}, ?TIMEOUT).
+-spec( listunspent(pid(), non_neg_integer(), pos_integer()) -> list() ).
+listunspent(Pid, MinConfs, MaxConfs)
+    when is_pid(Pid),
+         is_integer(MinConfs),
+         MinConfs >= 0,
+         is_integer(MaxConfs),
+         (MaxConfs >= 0) and (MaxConfs =< 999999) ->
+    gen_server:call(Pid, {listunspent, [MinConfs,MaxConfs]}, ?TIMEOUT).
+
+
+-spec( listlockunspent(pid()) -> list() ).
+listlockunspent(Pid) when is_pid(Pid) ->
+    gen_server:call(Pid, listlockunspent, ?TIMEOUT).
+
+-spec( lockunspent(pid(), boolean()) -> term()).
+lockunspent(Pid, Unlock)
+    when is_pid(Pid),
+         is_boolean(Unlock) ->
+    gen_server:call(Pid, {lockunspent, [Unlock]}, ?TIMEOUT).
+-spec( lockunspent(pid(), boolean(), [map()]) -> term()).
+lockunspent(Pid, Unlock, Objects)
+    when is_pid(Pid),
+         is_boolean(Unlock),
+         is_list(Objects) ->
+    gen_server:call(Pid, {lockunspent, [Unlock,Objects]}, ?TIMEOUT).
+
+-spec( move(pid(), binary(), binary(), float()) -> term()).
+move(Pid, FromAccount, ToAccount, Amount)
+    when is_pid(Pid),
+         is_binary(FromAccount),
+         is_binary(ToAccount),
+         is_float(Amount),
+         Amount > 0.00000001 ->
+    gen_server:call(Pid, {move, [FromAccount, ToAccount, Amount]}, ?TIMEOUT).
+-spec( move(pid(), binary(), binary(), float(), non_neg_integer()) -> term()).
+move(Pid, FromAccount, ToAccount, Amount, MinConfs)
+    when is_pid(Pid),
+         is_binary(FromAccount),
+         is_binary(ToAccount),
+         is_float(Amount),
+         Amount > 0.00000001,
+         is_integer(MinConfs),
+         MinConfs >= 0 ->
+    gen_server:call(Pid, {move, [FromAccount, ToAccount, Amount, MinConfs]}, ?TIMEOUT).
+-spec( move(pid(), binary(), binary(), float(), non_neg_integer(), binary()) -> term()).
+move(Pid, FromAccount, ToAccount, Amount, MinConfs, Comment)
+    when is_pid(Pid),
+         is_binary(FromAccount),
+         is_binary(ToAccount),
+         is_float(Amount),
+         Amount > 0.00000001,
+         is_integer(MinConfs),
+         MinConfs >= 0,
+         is_binary(Comment)->
+    gen_server:call(Pid, {move, [FromAccount, ToAccount, Amount, MinConfs, Comment]}, ?TIMEOUT).
+
+-spec( sendfrom(pid(), binary(), binary(), float()) -> binary()).
+sendfrom(Pid, FromAccount, ToWalletAddress, Amount)
+    when is_pid(Pid),
+         is_binary(FromAccount),
+         is_binary(ToWalletAddress),
+         is_float(Amount),
+         Amount > 0.00000001 ->
+    gen_server:call(Pid, {sendfrom, [FromAccount, ToWalletAddress, Amount]}, ?TIMEOUT).
+-spec( sendfrom(pid(), binary(), binary(), float(), non_neg_integer()) -> binary()).
+sendfrom(Pid, FromAccount, ToWalletAddress, Amount, MinConfs)
+    when is_pid(Pid),
+         is_binary(FromAccount),
+         is_binary(ToWalletAddress),
+         is_float(Amount),
+         Amount > 0.00000001,
+         is_integer(MinConfs),
+         MinConfs >= 0 ->
+    gen_server:call(Pid, {sendfrom, [FromAccount, ToWalletAddress, Amount, MinConfs]}, ?TIMEOUT).
+-spec( sendfrom(pid(), binary(), binary(), float(), non_neg_integer(), binary()) -> binary()).
+sendfrom(Pid, FromAccount, ToWalletAddress, Amount, MinConfs, Comment)
+    when is_pid(Pid),
+         is_binary(FromAccount),
+         is_binary(ToWalletAddress),
+         is_float(Amount),
+         Amount > 0.00000001,
+         is_integer(MinConfs),
+         MinConfs >= 0,
+         is_binary(Comment) ->
+    gen_server:call(
+            Pid,
+            {sendfrom, [FromAccount, ToWalletAddress, Amount, MinConfs, Comment]},
+            ?TIMEOUT
+    ).
+-spec( sendfrom(pid(), binary(), binary(), float(), non_neg_integer(), binary(), binary())
+        -> binary()).
+sendfrom(Pid, FromAccount, ToWalletAddress, Amount, MinConfs, Comment, ToComment)
+    when is_pid(Pid),
+         is_binary(FromAccount),
+         is_binary(ToWalletAddress),
+         is_float(Amount),
+         Amount > 0.00000001,
+         is_integer(MinConfs),
+         MinConfs >= 0,
+         is_binary(Comment),
+         is_binary(ToComment) ->
+    gen_server:call(
+        Pid,
+        {sendfrom, [FromAccount, ToWalletAddress, Amount, MinConfs, Comment, ToComment]},
+        ?TIMEOUT
+    ).
+
+-spec( sendmany(pid(), binary(), map()) -> [binary()]).
+sendmany(Pid, FromAccount, Amounts)
+    when is_pid(Pid),
+         is_binary(FromAccount),
+         is_map(Amounts) ->
+    gen_server:call(Pid, {sendmany, [FromAccount, Amounts]}, ?TIMEOUT).
+-spec( sendmany(pid(), binary(), map(), non_neg_integer()) -> [binary()]).
+sendmany(Pid, FromAccount, Amounts, MinConfs)
+    when is_pid(Pid),
+         is_binary(FromAccount),
+         is_map(Amounts),
+         is_integer(MinConfs),
+         MinConfs >= 0 ->
+    gen_server:call(Pid, {sendmany, [FromAccount, Amounts, MinConfs]}, ?TIMEOUT).
+-spec( sendmany(pid(), binary(), map(), non_neg_integer(), binary()) -> [binary()]).
+sendmany(Pid, FromAccount, Amounts, MinConfs, Comment)
+    when is_pid(Pid),
+         is_binary(FromAccount),
+         is_map(Amounts),
+         is_integer(MinConfs),
+         MinConfs >= 0,
+         is_binary(Comment)->
+    gen_server:call(Pid, {sendmany, [FromAccount, Amounts, MinConfs, Comment]}, ?TIMEOUT).
+
+-spec( sendrawtransaction(pid(), binary()) -> term()).
+sendrawtransaction(Pid, HexString)
+    when is_pid(Pid),
+         is_binary(HexString) ->
+    gen_server:call(Pid, {sendrawtransaction, [HexString]}, ?TIMEOUT).
+
+-spec( sendtoaddress(pid(), binary(), float()) -> binary()).
+sendtoaddress(Pid, WalletAddress, Amount)
+    when is_pid(Pid),
+         is_binary(WalletAddress),
+         is_float(Amount),
+         Amount >= 0.00000001 ->
+    gen_server:call(Pid, {sendtoaddress, [WalletAddress, Amount]}, ?TIMEOUT).
+-spec( sendtoaddress(pid(), binary(), float(), binary()) -> binary()).
+sendtoaddress(Pid, WalletAddress, Amount, Comment)
+    when is_pid(Pid),
+         is_binary(WalletAddress),
+         is_float(Amount),
+         Amount >= 0.00000001,
+         is_binary(Comment) ->
+    gen_server:call(Pid, {sendtoaddress, [WalletAddress, Amount, Comment]}, ?TIMEOUT).
+-spec( sendtoaddress(pid(), binary(), float(), binary(), binary()) -> binary()).
+sendtoaddress(Pid, WalletAddress, Amount, Comment, ToComment)
+    when is_pid(Pid),
+         is_binary(WalletAddress),
+         is_float(Amount),
+         Amount >= 0.00000001,
+         is_binary(Comment),
+         is_binary(ToComment) ->
+    gen_server:call(Pid, {sendtoaddress, [WalletAddress, Amount, Comment, ToComment]}, ?TIMEOUT).
+
+-spec( setaccount(pid(), binary(), binary()) -> term()).
+setaccount(Pid, WalletAddress, Account)
+    when is_pid(Pid),
+         is_binary(WalletAddress),
+         is_binary(Account) ->
+    gen_server:call(Pid, {setaccount, [WalletAddress, Account]}, ?TIMEOUT).
+
+-spec( setgenerate(pid(), boolean()) -> null).
+setgenerate(Pid, Generate)
+    when is_pid(Pid),
+         is_boolean(Generate) ->
+    gen_server:call(Pid, {setgenerate, [Generate]}, ?TIMEOUT).
+-spec( setgenerate(pid(), boolean(), pos_integer() | -1) -> null).
+setgenerate(Pid, Generate, GenProcLimit)
+    when is_pid(Pid),
+         is_boolean(Generate),
+         is_integer(GenProcLimit),
+         (GenProcLimit > 0) or (GenProcLimit =:= -1) ->
+    gen_server:call(Pid, {setgenerate, [Generate, GenProcLimit]}, ?TIMEOUT).
+
+-spec( settxfee(pid(), float()) -> term()).
+settxfee(Pid, Amount)
+    when is_pid(Pid),
+         is_float(Amount),
+         Amount >= 0.00000000 ->
+    gen_server:call(Pid, {settxfee, [Amount]}, ?TIMEOUT).
+
+-spec( signmessage(pid(), binary(), binary()) -> binary()).
+signmessage(Pid, WalletAddress, Message)
+    when is_pid(Pid),
+         is_binary(WalletAddress),
+         is_binary(Message) ->
+    gen_server:call(Pid, {signmessage, [WalletAddress, Message]}, ?TIMEOUT).
+
+-spec( signrawtransaction(pid(), binary(), [map()], [binary()]) -> binary()).
+signrawtransaction(Pid, HexString, Txns, Keys)
+    when is_pid(Pid),
+         is_binary(HexString),
+         is_list(Txns),
+         is_list(Keys) ->
+    gen_server:call(Pid, {signrawtransaction, [HexString, Txns, Keys]}, ?TIMEOUT).
+
+-spec( stop(pid()) -> binary() ).
+stop(Pid) when is_pid(Pid) ->
+    gen_server:call(Pid, stop, ?TIMEOUT).
+
+-spec( submitblock(pid(), binary()) -> term()).
+submitblock(Pid, HexData)
+    when is_pid(Pid),
+         is_binary(HexData) ->
+    gen_server:call(Pid, {submitblock, [HexData]}, ?TIMEOUT).
+-spec( submitblock(pid(), binary(), map()) -> term()).
+submitblock(Pid, HexData, Params)
+    when is_pid(Pid),
+         is_binary(HexData),
+         is_map(Params) ->
+    gen_server:call(Pid, {submitblock, [HexData, Params]}, ?TIMEOUT).
+
+-spec( validateaddress(pid(), binary()) -> term()).
+validateaddress(Pid, WalletAddress)
+    when is_pid(Pid),
+         is_binary(WalletAddress) ->
+    gen_server:call(Pid, {validateaddress, [WalletAddress]}, ?TIMEOUT).
+
+-spec( verifymessage(pid(), binary(), binary(), binary()) -> boolean()).
+verifymessage(Pid, WalletAddress, Signature, Message)
+    when is_pid(Pid),
+         is_binary(WalletAddress),
+         is_binary(Signature),
+         is_binary(Message) ->
+    gen_server:call(Pid, {verifymessage, [WalletAddress, Signature, Message]}, ?TIMEOUT).
+
+-spec( walletlock(pid()) -> term() ).
+walletlock(Pid) when is_pid(Pid) ->
+    gen_server:call(Pid, walletlock, ?TIMEOUT).
+
+-spec( walletpassphrase(pid(), binary(), non_neg_integer()) -> term()).
+walletpassphrase(Pid, PassPhrase, Timeout)
+    when is_pid(Pid),
+         is_binary(PassPhrase),
+         is_integer(Timeout),
+         Timeout >= 0 ->
+    gen_server:call(Pid, {walletpassphrase, [PassPhrase, Timeout]}, ?TIMEOUT).
+
+-spec( walletpassphrasechange(pid(), binary(), binary()) -> term()).
+walletpassphrasechange(Pid, OldPassPhrase, NewPassPhrase)
+    when is_pid(Pid),
+         is_binary(OldPassPhrase),
+         is_binary(NewPassPhrase) ->
+    gen_server:call(Pid, {walletpassphrasechange, [OldPassPhrase, NewPassPhrase]}, ?TIMEOUT).
+
+
+
 
 
 %%%===================================================================
@@ -114,18 +893,15 @@ init([Config = #bitcoin_jsonrpc_config{}]) ->
     {noreply, NewState :: #state{}, timeout() | hibernate} |
     {stop, Reason :: term(), Reply :: term(), NewState :: #state{}} |
     {stop, Reason :: term(), NewState :: #state{}}).
-handle_call(Request, _From, State = #state{seed = Seed, config = Config})
+handle_call(Request, _From, State)
     when is_atom(Request) ->
-    Method = erlang:atom_to_binary(Request, utf8),
-    Params = [],
-    JsonReq = jsonrpc2_client:create_request({Method, Params, seed_to_utf8(Seed)}),
-    {
-        reply,
-        do_jsonrpc_request(JsonReq, Config),
-        State#state{seed = increment_seed(Seed)}
-    };
+    handle_rpc_request(Request, [], State);
+handle_call( {Request, Params}, _From, State)
+    when is_atom(Request), is_list(Params) ->
+    handle_rpc_request(Request, Params, State);
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
+
 
 %%--------------------------------------------------------------------
 %% @private
@@ -191,6 +967,14 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+handle_rpc_request( Request, Params, State = #state{seed = Seed, config = Config}) ->
+    Method = erlang:atom_to_binary(Request, utf8),
+    JsonReq = jsonrpc2_client:create_request({Method, Params, seed_to_utf8(Seed)}),
+    {
+        reply,
+        do_jsonrpc_request(JsonReq, Config),
+        State#state{seed = increment_seed(Seed)}
+    }.
 
 get_settings_from_bitcoin_conf(BitcoinConfPath) ->
     {ok, Data} = file:read_file(BitcoinConfPath),
