@@ -218,7 +218,7 @@ createmultisig( Pid, NRequired, Keys )
          NRequired > 0 ->
     gen_server:call(Pid, {createmultisig, [NRequired, Keys]}, ?TIMEOUT).
 
--spec( createrawtransaction(pid(), [map()], map()) -> term() ).
+-spec( createrawtransaction(pid(), [map()], map()) -> binary() ).
 createrawtransaction( Pid, Inputs, Outputs )
     when is_pid(Pid),
          is_list(Inputs),
@@ -969,7 +969,9 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 handle_rpc_request( Request, Params, State = #state{seed = Seed, config = Config}) ->
     Method = erlang:atom_to_binary(Request, utf8),
-    JsonReq = jsonrpc2_client:create_request({Method, Params, seed_to_utf8(Seed)}),
+    JsonReq = jsonrpc2_client:create_request(
+        {Method, mochijson2:decode(jsxn:encode(Params)), seed_to_utf8(Seed)}
+    ),
     {
         reply,
         do_jsonrpc_request(JsonReq, Config),
