@@ -19,26 +19,26 @@ server=1
 Usage
 =====
 <pre>
-1> {ok,Pid} = ebitcoind:start_link().
-{ok,<0.177.0>}
-2> ebitcoind:getbalance(Pid).
+1&gt; {ok,Pid} = ebitcoind:start_link().
+{ok,&lt;0.177.0&gt;}
+2&gt; ebitcoind:getbalance(Pid).
 8437.02478294
-3> ebitcoind:getinfo(Pid).
-{ok, #{<<"balance">> => 8437.02478294,
-  <<"blocks">> => 260404,
-  <<"connections">> => 8,
-  <<"difficulty">> => 148819199.80509263,
-  <<"errors">> => <<>>,
-  <<"keypoololdest">> => 1420307921,
-  <<"keypoolsize">> => 102,
-  <<"paytxfee">> => 0.0,
-  <<"protocolversion">> => 70002,
-  <<"proxy">> => <<>>,
-  <<"relayfee">> => 1.0e-5,
-  <<"testnet">> => false,
-  <<"timeoffset">> => -3,
-  <<"version">> => 90300,
-  <<"walletversion">> => 60000}}
-4> ebitcoind:setgenerate(Pid,true).
+3&gt; ebitcoind:getinfo(Pid).
+{ok, #{&lt;&lt;&quot;balance&quot;&gt;&gt; =&gt; 8437.02478294,
+  &lt;&lt;&quot;blocks&quot;&gt;&gt; =&gt; 260404,
+  &lt;&lt;&quot;connections&quot;&gt;&gt; =&gt; 8,
+  &lt;&lt;&quot;difficulty&quot;&gt;&gt; =&gt; 148819199.80509263,
+  &lt;&lt;&quot;errors&quot;&gt;&gt; =&gt; &lt;&lt;&gt;&gt;,
+  &lt;&lt;&quot;keypoololdest&quot;&gt;&gt; =&gt; 1420307921,
+  &lt;&lt;&quot;keypoolsize&quot;&gt;&gt; =&gt; 102,
+  &lt;&lt;&quot;paytxfee&quot;&gt;&gt; =&gt; 0.0,
+  &lt;&lt;&quot;protocolversion&quot;&gt;&gt; =&gt; 70002,
+  &lt;&lt;&quot;proxy&quot;&gt;&gt; =&gt; &lt;&lt;&gt;&gt;,
+  &lt;&lt;&quot;relayfee&quot;&gt;&gt; =&gt; 1.0e-5,
+  &lt;&lt;&quot;testnet&quot;&gt;&gt; =&gt; false,
+  &lt;&lt;&quot;timeoffset&quot;&gt;&gt; =&gt; -3,
+  &lt;&lt;&quot;version&quot;&gt;&gt; =&gt; 90300,
+  &lt;&lt;&quot;walletversion&quot;&gt;&gt; =&gt; 60000}}
+4&gt; ebitcoind:setgenerate(Pid,true).
 {ok, null}
 </pre>
