@@ -24,7 +24,7 @@ Usage
 2> ebitcoind:getbalance(Pid).
 8437.02478294
 3> ebitcoind:getinfo(Pid).
-#{<<"balance">> => 8437.02478294,
+{ok, #{<<"balance">> => 8437.02478294,
   <<"blocks">> => 260404,
   <<"connections">> => 8,
   <<"difficulty">> => 148819199.80509263,
@@ -38,7 +38,7 @@ Usage
   <<"testnet">> => false,
   <<"timeoffset">> => -3,
   <<"version">> => 90300,
-  <<"walletversion">> => 60000}
+  <<"walletversion">> => 60000}}
 4> ebitcoind:setgenerate(Pid,true).
-null
+{ok, null}
 </pre>
