@@ -52,7 +52,32 @@
     gettxout/4,
     getwalletinfo/1,
     getwalletinfo/2,
-    help/1
+    help/1,
+    importprivkey/2,
+    listaddrunspent/2,
+    listloadedlockboxes/1,
+    listloadedwallets/1,
+    listtransactions/3,
+    listunspent/1,
+    receivedfromaddress/2,
+    receivedfromsigner/2,
+    relockwallet/1,
+    sendlockbox/6,
+    sendlockbox/7,
+    setactivelockbox/2,
+    setactivewallet/2,
+    setaddressmetadata/2,
+    signasciitransaction/2,
+    signasciitransaction/3,
+    unlockwallet/2,
+    unlockwallet/3,
+    verifysignature/2,
+    watchwallet/2,
+    watchwallet/3,
+    watchwallet/4,
+    watchwallet/5,
+    watchwallet/6,
+    watchwallet/7
 ]).
 
 
@@ -259,9 +284,182 @@ help(Pid)
     when is_pid(Pid) ->
     gen_server:call(Pid, help, ?TIMEOUT).
 
+-spec( importprivkey(pid(), binary()) -> {ok, binary()} | {error, term()}).
+importprivkey(Pid, PrivKey)
+    when is_pid(Pid),
+         is_binary(PrivKey) ->
+    gen_server:call(Pid, {importprivkey, [PrivKey]}, ?TIMEOUT).
 
+-spec( listaddrunspent(pid(), binary()) -> {ok, map()} | {error, term()}).
+listaddrunspent(Pid, Base58WalletAddress)
+    when is_pid(Pid),
+         is_binary(Base58WalletAddress) ->
+    gen_server:call(Pid, {listaddrunspent, [Base58WalletAddress]}, ?TIMEOUT).
 
+-spec( listloadedlockboxes(pid()) -> {ok, map()} | {error, term()}).
+listloadedlockboxes(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, listloadedlockboxes, ?TIMEOUT).
 
+-spec( listloadedwallets(pid()) -> {ok, map()} | {error, term()}).
+listloadedwallets(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, listloadedwallets, ?TIMEOUT).
+
+-spec( listtransactions(pid(), non_neg_integer(), non_neg_integer()) -> {ok, map()} | {error, term()}).
+listtransactions(Pid, TxCount, FromTx)
+    when is_pid(Pid),
+         is_integer(TxCount),
+         TxCount >= 0,
+         is_integer(FromTx),
+         FromTx >= 0,
+         FromTx > TxCount ->
+    gen_server:call(Pid, {listtransactions, [TxCount,FromTx]}, ?TIMEOUT).
+
+-spec( listunspent(pid()) -> {ok, map()} | {error, term()}).
+listunspent(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, listunspent, ?TIMEOUT).
+
+-spec( receivedfromaddress(pid(), binary()) -> {ok, float()} | {error, term()}).
+receivedfromaddress(Pid, Base58Sender)
+    when is_pid(Pid),
+         is_binary(Base58Sender) ->
+    gen_server:call(Pid, {receivedfromaddress, [Base58Sender]}, ?TIMEOUT).
+
+-spec( receivedfromsigner(pid(), binary()) -> {ok, map()} | {error, term()}).
+receivedfromsigner(Pid, SigBlock)
+    when is_pid(Pid),
+         is_binary(SigBlock) ->
+    gen_server:call(Pid, {receivedfromsigner, [SigBlock]}, ?TIMEOUT).
+
+-spec( relockwallet(pid()) -> {ok, binary()} | {error, term()}).
+relockwallet(Pid)
+    when is_pid(Pid) ->
+    gen_server:call(Pid, relockwallet, ?TIMEOUT).
+
+-spec( sendlockbox(pid(), binary(), binary(), binary(), binary(), binary()) -> {ok, binary()} | {ok, term()}).
+sendlockbox(Pid, LockboxBase58Ids, Sender, Server, Password, Recips)
+    when is_pid(Pid),
+         is_binary(LockboxBase58Ids),
+         is_binary(Sender),
+         is_binary(Server),
+         is_binary(Password),
+         is_binary(Recips) ->
+    gen_server:call(Pid, {sendlockbox, [LockboxBase58Ids, Sender, Server, Password, Recips]}, ?TIMEOUT).
+
+-spec( sendlockbox(pid(), binary(), binary(), binary(), binary(), binary(), binary()) -> {ok, binary()} | {ok, term()}).
+sendlockbox(Pid, LockboxBase58Ids, Sender, Server, Password, Recips, Subject)
+    when is_pid(Pid),
+         is_binary(LockboxBase58Ids),
+         is_binary(Sender),
+         is_binary(Server),
+         is_binary(Password),
+         is_binary(Recips),
+         is_binary(Subject)->
+    gen_server:call(Pid, {sendlockbox, [LockboxBase58Ids, Sender, Server, Password, Recips, Subject]}, ?TIMEOUT).
+
+-spec( setactivelockbox(pid(), binary()) -> {ok, binary()} | {error, term()}).
+setactivelockbox(Pid, NewBase58LockBox)
+    when is_pid(Pid),
+         is_binary(NewBase58LockBox) ->
+    gen_server:call(Pid, {setactivelockbox, [NewBase58LockBox]}, ?TIMEOUT).
+
+-spec( setactivewallet(pid(), binary()) -> {ok, binary()} | {error, term()}).
+setactivewallet(Pid, NewBase58Wallet)
+    when is_pid(Pid),
+         is_binary(NewBase58Wallet) ->
+    gen_server:call(Pid, {setactivewallet, [NewBase58Wallet]}, ?TIMEOUT).
+
+-spec( setaddressmetadata(pid(), binary()) -> {ok, null} | {error, term()}).
+setaddressmetadata(Pid, NewAddressMetaData)
+    when is_pid(Pid),
+         is_binary(NewAddressMetaData) ->
+    gen_server:call(Pid, {setaddressmetadata, [setaddressmetadata]}, ?TIMEOUT).
+
+-spec( signasciitransaction(pid(), binary()) -> {ok, map()} | {error, term()}).
+signasciitransaction(Pid, UnsignedTxAscii)
+    when is_pid(Pid),
+         is_binary(UnsignedTxAscii) ->
+    gen_server:call(Pid, {signasciitransaction, [UnsignedTxAscii]}, ?TIMEOUT).
+
+-spec( signasciitransaction(pid(), binary(), binary()) -> {ok, map()} | {error, term()}).
+signasciitransaction(Pid, UnsignedTxAscii, WalletPassword)
+    when is_pid(Pid),
+         is_binary(UnsignedTxAscii),
+         is_binary(WalletPassword)->
+    gen_server:call(Pid, {signasciitransaction, [UnsignedTxAscii, WalletPassword]}, ?TIMEOUT).
+
+-spec( unlockwallet(pid(), binary()) -> {ok, binary()} | {error, term()}).
+unlockwallet(Pid, Passphrase)
+    when is_pid(Pid),
+         is_binary(Passphrase) ->
+    gen_server:call(Pid, {unlockwallet, [Passphrase]}, ?TIMEOUT).
+
+-spec( unlockwallet(pid(), binary(), non_neg_integer()) -> {ok, binary()} | {error, term()}).
+unlockwallet(Pid, Passphrase, Timeout)
+    when is_pid(Pid),
+         is_binary(Passphrase),
+         is_integer(Timeout),
+         Timeout >= 0 ->
+    gen_server:call(Pid, {unlockwallet, [Passphrase, Timeout]}, ?TIMEOUT).
+
+-spec( verifysignature(pid(), binary()) -> {ok, map()} | {error, term()}).
+verifysignature(Pid, SigBlock)
+    when is_pid(Pid),
+         is_binary(SigBlock) ->
+    gen_server:call(Pid, {verifysignature, [SigBlock]}, ?TIMEOUT).
+
+-spec( watchwallet(pid(), binary()) -> {ok, null} | {error, term()}).
+watchwallet(Pid, SendFrom)
+    when is_pid(Pid),
+         is_binary(SendFrom) ->
+    gen_server:call(Pid, {watchwallet, [SendFrom]}, ?TIMEOUT).
+
+-spec( watchwallet(pid(), binary(), binary()) -> {ok, null} | {error, term()}).
+watchwallet(Pid, SendFrom, SmtpServer)
+    when is_pid(Pid),
+         is_binary(SendFrom),
+         is_binary(SmtpServer) ->
+    gen_server:call(Pid, {watchwallet, [SendFrom, SmtpServer]}, ?TIMEOUT).
+
+-spec( watchwallet(pid(), binary(), binary(), binary()) -> {ok, null} | {error, term()}).
+watchwallet(Pid, SendFrom, SmtpServer, Password)
+    when is_pid(Pid),
+         is_binary(SendFrom),
+         is_binary(SmtpServer),
+         is_binary(Password) ->
+    gen_server:call(Pid, {watchwallet, [SendFrom, SmtpServer, Password]}, ?TIMEOUT).
+
+-spec( watchwallet(pid(), binary(), binary(), binary(), binary()) -> {ok, null} | {error, term()}).
+watchwallet(Pid, SendFrom, SmtpServer, Password, SendTo)
+    when is_pid(Pid),
+         is_binary(SendFrom),
+         is_binary(SmtpServer),
+         is_binary(Password),
+         is_binary(SendTo) ->
+    gen_server:call(Pid, {watchwallet, [SendFrom, SmtpServer, Password, SendTo]}, ?TIMEOUT).
+
+-spec( watchwallet(pid(), binary(), binary(), binary(), binary(), binary()) -> {ok, null} | {error, term()}).
+watchwallet(Pid, SendFrom, SmtpServer, Password, SendTo, Subject)
+    when is_pid(Pid),
+         is_binary(SendFrom),
+         is_binary(SmtpServer),
+         is_binary(Password),
+         is_binary(SendTo),
+         is_binary(Subject) ->
+    gen_server:call(Pid, {watchwallet, [SendFrom, SmtpServer, Password, SendTo, Subject]}, ?TIMEOUT).
+
+-spec( watchwallet(pid(), binary(), binary(), binary(), binary(), binary(), binary()) -> {ok, null} | {error, term()}).
+watchwallet(Pid, SendFrom, SmtpServer, Password, SendTo, Subject, WatchCmd)
+    when is_pid(Pid),
+         is_binary(SendFrom),
+         is_binary(SmtpServer),
+         is_binary(Password),
+         is_binary(SendTo),
+         is_binary(Subject),
+         is_binary(WatchCmd) ->
+    gen_server:call(Pid, {watchwallet, [SendFrom, SmtpServer, Password, SendTo, Subject, WatchCmd]}, ?TIMEOUT).
 
 
 get_settings_from_armory_conf(ArmoryConfPath) ->
