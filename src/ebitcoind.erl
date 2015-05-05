@@ -117,6 +117,8 @@
          setgenerate/3,
          settxfee/2,
          signmessage/3,
+         signrawtransaction/2,
+         signrawtransaction/3,
          signrawtransaction/4,
          stop/1,
          submitblock/2,
@@ -800,6 +802,21 @@ signmessage(Pid, WalletAddress, Message)
          is_binary(WalletAddress),
          is_binary(Message) ->
     gen_server:call(Pid, {signmessage, [WalletAddress, Message]}, ?TIMEOUT).
+
+-spec( signrawtransaction(pid(), binary()) ->
+    {ok, binary()} | {error, term()}).
+signrawtransaction(Pid, HexString)
+    when is_pid(Pid),
+         is_binary(HexString) ->
+    gen_server:call(Pid, {signrawtransaction, [HexString]}, ?TIMEOUT).
+
+-spec( signrawtransaction(pid(), binary(), [map()]) ->
+    {ok, binary()} | {error, term()}).
+signrawtransaction(Pid, HexString, Txns)
+    when is_pid(Pid),
+         is_binary(HexString),
+         is_list(Txns) ->
+    gen_server:call(Pid, {signrawtransaction, [HexString, Txns]}, ?TIMEOUT).
 
 -spec( signrawtransaction(pid(), binary(), [map()], [binary()]) ->
     {ok, binary()} | {error, term()}).
