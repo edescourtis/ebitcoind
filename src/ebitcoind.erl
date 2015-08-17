@@ -1028,10 +1028,11 @@ get_settings_from_bitcoin_conf(BitcoinConfPath) ->
 url_to_bitcoin_jsonrpc_config(Url) when is_list(Url) ->
     {ok, {HttpOrHttps, UserPass, Host, Port, _, _}} = http_uri:parse(Url),
     {Username, Password} = userpass_to_username_and_password(UserPass),
+    C  = fun unicode:characters_to_binary/1,
     #bitcoin_jsonrpc_config{
-        user     = Username,
-        password = Password,
-        host     = Host,
+        user     = C(Username),
+        password = C(Password),
+        host     = C(Host),
         port     = Port,
         ssl      = case HttpOrHttps of https -> true; http -> false end
     }.
