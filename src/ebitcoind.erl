@@ -1077,6 +1077,7 @@ do_jsonrpc_request(JsonReq, Config) ->
             )
         }
     ],
+    lager:debug("Headers -> ~p", [Headers),
     Request = {Url, Headers, ContentType, Body},
     HTTPOptions = [
         {timeout,         ?HTTP_REQUEST_TIMEOUT   },
