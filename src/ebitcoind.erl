@@ -1064,10 +1064,6 @@ do_jsonrpc_request(JsonReq, Config) ->
     Body = iolist_to_binary(mochijson2:encode(JsonReq)),
     ContentType = "application/json",
     C = fun unicode:characters_to_list/1,
-    lager:debug("User:Pwd -> ~p ~p", [C(Config#bitcoin_jsonrpc_config.user),
-    C(Config#bitcoin_jsonrpc_config.password)]),
-    lager:debug("User:Pwd1 -> ~p ~p", [Config#bitcoin_jsonrpc_config.user,
-    Config#bitcoin_jsonrpc_config.password]),
     Headers = [
         {"Authorization",
             "Basic " ++ base64:encode_to_string(
@@ -1077,7 +1073,6 @@ do_jsonrpc_request(JsonReq, Config) ->
             )
         }
     ],
-    lager:debug("Headers -> ~p", [Headers]),
     Request = {Url, Headers, ContentType, Body},
     HTTPOptions = [
         {timeout,         ?HTTP_REQUEST_TIMEOUT   },
