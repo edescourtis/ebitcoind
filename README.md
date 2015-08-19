@@ -42,3 +42,8 @@ Usage
 4&gt; ebitcoind:setgenerate(Pid,true).
 {ok, null}
 </pre>
+OR you can specify connection information as start_link argument
+<pre>
+1> {ok,Pid} = ebitcoind:start_link(<<"http://rpcuser:rpcpassword@host:port">>).
+{ok,<0.177.0>}
+</pre>

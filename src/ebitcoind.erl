@@ -1047,8 +1047,8 @@ userpass_to_username_and_password(0, User) ->
     Def = #bitcoin_jsonrpc_config{},
     {User, Def#bitcoin_jsonrpc_config.password};
 userpass_to_username_and_password(Pos, UserPass) ->
-    User = string:substr(UserPass, Pos + 1),
-    Pass = string:substr(UserPass, 1, Pos - 1),
+    Pass = string:substr(UserPass, Pos + 1),
+    User = string:substr(UserPass, 1, Pos - 1),
     {User, Pass}.
 
 increment_seed(<<Num:?SEED_BYTES/unsigned-integer-unit:8>>) ->
