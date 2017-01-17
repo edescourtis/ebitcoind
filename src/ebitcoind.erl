@@ -116,6 +116,7 @@
          setgenerate/2,
          setgenerate/3,
          settxfee/2,
+         estimatefee/2,
          signmessage/3,
          signrawtransaction/2,
          signrawtransaction/3,
@@ -795,6 +796,12 @@ settxfee(Pid, Amount)
          is_float(Amount),
          Amount >= 0.00000000 ->
     gen_server:call(Pid, {settxfee, [Amount]}, ?TIMEOUT).
+
+-spec( estimatefee(pid(), non_neg_integer()) -> {ok, term()} | {error, term()}).
+estimatefee(Pid, TransactionAppearsInNextNumberOfBlocks)
+    when is_pid(Pid),
+         is_integer(TransactionAppearsInNextNumberOfBlocks) ->
+    gen_server:call(Pid, {estimatefee, [TransactionAppearsInNextNumberOfBlocks]}, ?TIMEOUT).
 
 -spec( signmessage(pid(), binary(), binary()) -> {ok, binary()} | {error, term()}).
 signmessage(Pid, WalletAddress, Message)
